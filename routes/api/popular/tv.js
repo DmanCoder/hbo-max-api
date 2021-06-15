@@ -1,0 +1,92 @@
+const { dbAPI, axios } = require('../../../api/init');
+const express = require('express');
+const url = require('url');
+
+const router = express.Router();
+
+// Validators
+const validatePopularTv = require('../../../validations/popular/tv');
+
+/**
+ * @dec       This API makes a request to TMDb API and returns the request
+ *            for the client to consume.
+ * @route     GET /api/tv/popular
+ * @route     GET /api/tv/{tv_id} - Get details of selected media
+ * @route     GET /api/tv/{tv_id}/videos - Get trailers
+ * @param     {req, res} - Request & Response
+ * @returns   {boolean}
+ * @access    Public
+ */
+router.get('/', (req, res) => {
+  // Expected params
+  const queryObject = url.parse(req.url, true).query;
+  const { language, page } = queryObject;
+
+  // API access key
+  const { TMDb_API } = process.env;
+
+  // Reject if expected params are not present
+  const { errors, isValid } = validatePopularTv(queryObject);
+  if (!isValid) {
+    res.status(400);
+    return res.send({ errors });
+  }
+
+  // Get popular movies
+  dbAPI
+    .get(`/tv/popular?api_key=${TMDb_API}&language=${language}&page=${page}`)
+    .then((response) => {
+      const { data } = response;
+      const { page, results, total_pages, total_results } = data;
+      const multiReq = []; // Store array of axios instances
+
+      /*
+       * Loop through each item in `results` and
+       * store axios
+       */
+      results.map((item, index) => {
+        const epDetails = `/tv/${item.id}?api_key=${TMDb_API}&languages=${language}&pages=${page}`;
+        const epVideos = `/tv/${item.id}/videos?api_key=${TMDb_API}&languages=${language}&pages=${page}`;
+
+        multiReq.push(axios.all([dbAPI.get(epDetails), dbAPI.get(epVideos)]));
+      });
+
+      axios.all(multiReq).then(
+        axios.spread((...allRes) => {
+          /* `allRes` contains array inside an array that contains object
+              The Objects are as follows in line 51 as above ^^ 
+            [
+              [
+                {
+                  status: 200,
+                  statusText: 'OK',
+                  headers: [Object],
+                  config: [Object],
+                  request: [ClientRequest],
+                  data: [Object],
+                },
+                {
+                  status: 200,
+                  statusText: 'OK',
+                  headers: [Object],
+                  config: [Object],
+                  request: [ClientRequest],
+                  data: [Object],
+                },
+              ],
+            ]
+          */
+          console.log(allRes);
+        })
+      );
+
+      res.send(data);
+    })
+    .catch((errors) => {
+      const { data } = errors.response;
+      console.log(errors);
+      res.send({ errors: { ...data, message: 'Issues Fetching results' } });
+    });
+});
+
+module.exports = router;

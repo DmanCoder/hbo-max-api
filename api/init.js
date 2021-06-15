@@ -8,4 +8,4 @@ const dbAPI = axios.create({
   baseURL: dbURL,
 });
 
-module.exports = { dbAPI, dbURL };
+module.exports = { dbAPI, dbURL, axios };
