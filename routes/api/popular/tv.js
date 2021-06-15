@@ -32,7 +32,7 @@ router.get('/', (req, res) => {
     return res.send({ errors });
   }
 
-  // Get popular movies
+  // Get popular tv shows
   dbAPI
     .get(`/tv/popular?api_key=${TMDb_API}&language=${language}&page=${page}`)
     .then((response) => {
