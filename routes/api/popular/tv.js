@@ -37,7 +37,7 @@ router.get('/', (req, res) => {
     .get(`/tv/popular?api_key=${TMDb_API}&language=${language}&page=${page}`)
     .then((response) => {
       const { data } = response;
-      const { page, results, total_pages, total_results } = data;
+      const { page, results } = data;
       const multiReq = []; // Store array of axios instances
 
       /*
@@ -76,11 +76,20 @@ router.get('/', (req, res) => {
               ],
             ]
           */
-          console.log(allRes);
+
+          // Extracting data and insert to `results`
+          allRes.map((item, index) => {
+            const detailsResults = item[0].data;
+            const videosResults = item[1].data;
+
+            // Insert fetched data to `results`
+            results[index].media_details = detailsResults;
+            results[index].media_videos = videosResults;
+          });
+
+          res.send({ ...data, results });
         })
       );
-
-      res.send(data);
     })
     .catch((errors) => {
       const { data } = errors.response;
