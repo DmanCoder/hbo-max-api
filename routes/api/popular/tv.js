@@ -38,17 +38,19 @@ router.get('/', (req, res) => {
     .then((response) => {
       const { data } = response;
       const { page, results } = data;
-      const multiReq = []; // Store array of axios instances
+      const multiReq = []; // [[request], [request], [request]] Store array of axios instances
 
       /*
        * Loop through each item in `results` and
        * store axios
        */
       results.map((item, index) => {
+        // Endpoints
         const epDetails = `/tv/${item.id}?api_key=${TMDb_API}&languages=${language}&pages=${page}`;
         const epVideos = `/tv/${item.id}/videos?api_key=${TMDb_API}&languages=${language}&pages=${page}`;
+        const epRecommendations = `/tv/${item.id}/recommendations?api_key=${TMDb_API}&languages=${language}&pages=${page}`;
 
-        multiReq.push(axios.all([dbAPI.get(epDetails), dbAPI.get(epVideos)]));
+        multiReq.push(axios.all([dbAPI.get(epDetails), dbAPI.get(epVideos), dbAPI.get(epRecommendations)]));
       });
 
       axios.all(multiReq).then(
@@ -81,10 +83,12 @@ router.get('/', (req, res) => {
           allRes.map((item, index) => {
             const detailsResults = item[0].data;
             const videosResults = item[1].data;
+            const recommendationsResults = item[2].data;
 
             // Insert fetched data to `results`
             results[index].media_details = detailsResults;
             results[index].media_videos = videosResults;
+            results[index].media_recommendations = recommendationsResults;
           });
 
           res.send({ ...data, results });
