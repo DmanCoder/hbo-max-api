@@ -88,7 +88,7 @@ router.get('/', (req, res) => {
             // Insert fetched data to `results`
             results[index].media_details = detailsResults;
             results[index].media_videos = videosResults;
-            results[index].media_recommendations = recommendationsResults;
+            results[index].media_recommendations = recommendationsResults.results;
           });
 
           res.send({ ...data, results });
