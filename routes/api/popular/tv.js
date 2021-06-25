@@ -50,7 +50,13 @@ router.get('/', (req, res) => {
         const epVideos = `/tv/${item.id}/videos?api_key=${TMDb_API}&languages=${language}&pages=${page}`;
         const epRecommendations = `/tv/${item.id}/recommendations?api_key=${TMDb_API}&languages=${language}&pages=${page}`;
 
-        multiReq.push(axios.all([dbAPI.get(epDetails), dbAPI.get(epVideos), dbAPI.get(epRecommendations)]));
+        multiReq.push(
+          axios.all([
+            dbAPI.get(epDetails),
+            dbAPI.get(epVideos),
+            dbAPI.get(epRecommendations),
+          ])
+        );
       });
 
       axios.all(multiReq).then(
@@ -88,7 +94,8 @@ router.get('/', (req, res) => {
             // Insert fetched data to `results`
             results[index].media_details = detailsResults;
             results[index].media_videos = videosResults;
-            results[index].media_recommendations = recommendationsResults.results;
+            results[index].media_recommendations =
+              recommendationsResults.results;
           });
 
           res.send({ ...data, results });
@@ -96,6 +103,7 @@ router.get('/', (req, res) => {
       );
     })
     .catch((errors) => {
+      // console.log(errors)
       const { data } = errors.response;
       console.log(errors);
       res.send({ errors: { ...data, message: 'Issues Fetching results' } });
