@@ -1,6 +1,9 @@
 const { dbAPI, axios } = require('../../../api/init');
 const express = require('express');
 const url = require('url');
+
+const shuffle = require('../../../utils/shuffle');
+
 // TODO: https://www.themoviedb.org/talk/6002a239223e20003fb6e10b
 /*
  * A query looking for popular streaming titles: https://api.themoviedb.org/3/discover/movie?api_key=###&watch_region=US&with_watch_monetization_types=flatrate
@@ -65,7 +68,9 @@ router.get('/', (req, res) => {
           return { ...tvShow, appendedMediaType: 'tv' };
         });
 
-        const combinedMedias = [...newMoviesResults, ...newTvShowsResults];
+        let combinedMedias = [...newMoviesResults, ...newTvShowsResults];
+        combinedMedias = shuffle({ array: combinedMedias }); // Shuffle to random positionings
+
         const multiReq = []; // [[request], [request], [request]] Store array of axios instances
         /*
          * Loop through each item in `results` and
@@ -131,8 +136,6 @@ router.get('/', (req, res) => {
       })
     )
     .catch((errors) => {
-      console.log(errors, '-=-=-=-=-=-');
-      // const { data } = errors.response;
       res.send({ errors: { message: 'Issues Fetching results' } });
     });
 });
