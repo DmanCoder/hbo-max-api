@@ -40,79 +40,88 @@ router.get('/', (req, res) => {
   }
 
   // Get popular movies/tv shows that are streaming on streaming servicers
-  dbAPI
-  .get(`/discover/movie?api_key=${TMDb_API}&watch_region=US&with_watch_monetization_types=flatrate&language=${language}&page=${page}`)
-  .then((response) => {
-    const { data } = response;
-    const { page, results } = data;
-    const multiReq = []; // [[request], [request], [request]] Store array of axios instances
+  const epStreamingMovies = `/discover/movie?api_key=${TMDb_API}&watch_region=US&with_watch_monetization_types=flatrate&language=${language}&page=${page}`;
+  const requestStreamingMovies = dbAPI.get(epStreamingMovies);
 
-    /*
-     * Loop through each item in `results` and
-     * store axios
-     */
-    results.map((item, index) => {
-      // Endpoints
-      const epDetails = `/movie/${item.id}?api_key=${TMDb_API}&languages=${language}&pages=${page}`;
-      const epVideos = `/movie/${item.id}/videos?api_key=${TMDb_API}&languages=${language}&pages=${page}`;
-      const epRecommendations = `/movie/${item.id}/recommendations?api_key=${TMDb_API}&languages=${language}&pages=${page}`;
-      
-      multiReq.push(
-        axios.all([
-          dbAPI.get(epDetails),
-          dbAPI.get(epVideos),
-          dbAPI.get(epRecommendations),
-        ])
-      );
-    });
+  const epStreamingTvShows = `/discover/tv?api_key=${TMDb_API}&watch_region=US&with_watch_monetization_types=flatrate&language=${language}&page=${page}`;
+  const requestStreamingTvShows = dbAPI.get(epStreamingMovies);
 
-    axios.all(multiReq).then(
-      axios.spread((...allRes) => {
-        /* `allRes` contains array inside an array that contains object
-            The Objects are as follows in line 51 as above ^^ 
-          [
-            [
-              {
-                status: 200,
-                statusText: 'OK',
-                headers: [Object],
-                config: [Object],
-                request: [ClientRequest],
-                data: [Object],
-              },
-              {
-                status: 200,
-                statusText: 'OK',
-                headers: [Object],
-                config: [Object],
-                request: [ClientRequest],
-                data: [Object],
-              },
-            ],
-          ]
-        */
+  axios
+    .all([requestStreamingMovies, requestStreamingTvShows])
+    .then(
+      axios.spread((...responses) => {
+        const [movies, tvShows] = responses;
 
-        // Extracting data and insert to `results`
-        allRes.map((item, index) => {
-          const detailsResults = item[0].data;
-          const videosResults = item[1].data;
-          const recommendationsResults = item[2].data;
+        // const { page, results } = data;
+        // const multiReq = []; // [[request], [request], [request]] Store array of axios instances
+        res.send({ results: 'test' });
+        /*
+         * Loop through each item in `results` and
+         * store axios
+         */
+        // results.map((item, index) => {
+        //   // Endpoints
+        //   const epDetails = `/movie/${item.id}?api_key=${TMDb_API}&languages=${language}&pages=${page}`;
+        //   const epVideos = `/movie/${item.id}/videos?api_key=${TMDb_API}&languages=${language}&pages=${page}`;
+        //   const epRecommendations = `/movie/${item.id}/recommendations?api_key=${TMDb_API}&languages=${language}&pages=${page}`;
 
-          // Insert fetched data to `results`
-          results[index].media_details = detailsResults;
-          results[index].media_videos = videosResults;
-          results[index].media_recommendations =
-            recommendationsResults.results;
-        });
+        //   multiReq.push(
+        //     axios.all([
+        //       dbAPI.get(epDetails),
+        //       dbAPI.get(epVideos),
+        //       dbAPI.get(epRecommendations),
+        //     ])
+        //   );
+        // });
 
-        res.send({ ...data, results });
+        // axios.all(multiReq).then(
+        //   axios.spread((...allRes) => {
+        //     /* `allRes` contains array inside an array that contains object
+        //         The Objects are as follows in line 51 as above ^^
+        //       [
+        //         [
+        //           {
+        //             status: 200,
+        //             statusText: 'OK',
+        //             headers: [Object],
+        //             config: [Object],
+        //             request: [ClientRequest],
+        //             data: [Object],
+        //           },
+        //           {
+        //             status: 200,
+        //             statusText: 'OK',
+        //             headers: [Object],
+        //             config: [Object],
+        //             request: [ClientRequest],
+        //             data: [Object],
+        //           },
+        //         ],
+        //       ]
+        //     */
+
+        //     // Extracting data and insert to `results`
+        //     allRes.map((item, index) => {
+        //       const detailsResults = item[0].data;
+        //       const videosResults = item[1].data;
+        //       const recommendationsResults = item[2].data;
+
+        //       // Insert fetched data to `results`
+        //       results[index].media_details = detailsResults;
+        //       results[index].media_videos = videosResults;
+        //       results[index].media_recommendations =
+        //         recommendationsResults.results;
+        //     });
+
+        //     res.send({ ...data, results });
+        //   })
+        // );
       })
-    );
-  })
-  .catch((errors) => {
-    const { data } = errors.response;
-    res.send({ errors: { ...data, message: 'Issues Fetching results' } });
-  });
+    )
+    .catch((errors) => {
+      const { data } = errors.response;
+      res.send({ errors: { ...data, message: 'Issues Fetching results' } });
+    });
 });
 
 module.exports = router;
