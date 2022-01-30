@@ -40,7 +40,7 @@ router.get('/', (req, res) => {
 
   // Get popular tv shows
   dbAPI
-    .get(`/tv/popular?api_key=${TMDb_API}&language=${language}&page=${page}`)
+    .get(`/tv/popular?api_key=${TMDb_API}&watch_region=US&language=${language}&page=${page}`)
     .then((response) => {
       const { data } = response;
       const { page, results } = data;
@@ -109,9 +109,7 @@ router.get('/', (req, res) => {
       );
     })
     .catch((errors) => {
-      // console.log(errors)
       const { data } = errors.response;
-      console.log(errors);
       res.send({ errors: { ...data, message: 'Issues Fetching results' } });
     });
 });
