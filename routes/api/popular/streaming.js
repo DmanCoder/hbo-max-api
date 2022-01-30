@@ -44,83 +44,96 @@ router.get('/', (req, res) => {
   const requestStreamingMovies = dbAPI.get(epStreamingMovies);
 
   const epStreamingTvShows = `/discover/tv?api_key=${TMDb_API}&watch_region=US&with_watch_monetization_types=flatrate&language=${language}&page=${page}`;
-  const requestStreamingTvShows = dbAPI.get(epStreamingMovies);
+  const requestStreamingTvShows = dbAPI.get(epStreamingTvShows);
 
   axios
     .all([requestStreamingMovies, requestStreamingTvShows])
     .then(
       axios.spread((...responses) => {
-        const [movies, tvShows] = responses;
+        const [movies, tvShows] = responses; // Success responses (Movies & Tv Shows)
 
-        // const { page, results } = data;
-        // const multiReq = []; // [[request], [request], [request]] Store array of axios instances
-        res.send({ results: 'test' });
+        // Pull out results
+        const { page: moviesPageNumber, results: moviesResults } = movies.data;
+        const { page: tvShowPageNumber, results: tvShowResults } = tvShows.data;
+
+        // Append media type
+        const newMoviesResults = moviesResults.map((movie) => {
+          return { ...movie, appendedMediaType: 'movie' };
+        });
+
+        const newTvShowsResults = tvShowResults.map((tvShow) => {
+          return { ...tvShow, appendedMediaType: 'tv' };
+        });
+
+        const combinedMedias = [...newMoviesResults, ...newTvShowsResults];
+        const multiReq = []; // [[request], [request], [request]] Store array of axios instances
         /*
          * Loop through each item in `results` and
          * store axios
          */
-        // results.map((item, index) => {
-        //   // Endpoints
-        //   const epDetails = `/movie/${item.id}?api_key=${TMDb_API}&languages=${language}&pages=${page}`;
-        //   const epVideos = `/movie/${item.id}/videos?api_key=${TMDb_API}&languages=${language}&pages=${page}`;
-        //   const epRecommendations = `/movie/${item.id}/recommendations?api_key=${TMDb_API}&languages=${language}&pages=${page}`;
+        combinedMedias.map((item, index) => {
+          // Endpoints
+          const epDetails = `/${item.appendedMediaType}/${item.id}?api_key=${TMDb_API}&languages=${language}&pages=${page}`;
+          const epVideos = `/${item.appendedMediaType}/${item.id}/videos?api_key=${TMDb_API}&languages=${language}&pages=${page}`;
+          const epRecommendations = `/${item.appendedMediaType}/${item.id}/recommendations?api_key=${TMDb_API}&languages=${language}&pages=${page}`;
 
-        //   multiReq.push(
-        //     axios.all([
-        //       dbAPI.get(epDetails),
-        //       dbAPI.get(epVideos),
-        //       dbAPI.get(epRecommendations),
-        //     ])
-        //   );
-        // });
+          multiReq.push(
+            axios.all([
+              dbAPI.get(epDetails),
+              dbAPI.get(epVideos),
+              dbAPI.get(epRecommendations),
+            ])
+          );
+        });
 
-        // axios.all(multiReq).then(
-        //   axios.spread((...allRes) => {
-        //     /* `allRes` contains array inside an array that contains object
-        //         The Objects are as follows in line 51 as above ^^
-        //       [
-        //         [
-        //           {
-        //             status: 200,
-        //             statusText: 'OK',
-        //             headers: [Object],
-        //             config: [Object],
-        //             request: [ClientRequest],
-        //             data: [Object],
-        //           },
-        //           {
-        //             status: 200,
-        //             statusText: 'OK',
-        //             headers: [Object],
-        //             config: [Object],
-        //             request: [ClientRequest],
-        //             data: [Object],
-        //           },
-        //         ],
-        //       ]
-        //     */
+        axios.all(multiReq).then(
+          axios.spread((...allRes) => {
+            /* `allRes` contains array inside an array that contains object
+                The Objects are as follows in line 51 as above ^^
+              [
+                [
+                  {
+                    status: 200,
+                    statusText: 'OK',
+                    headers: [Object],
+                    config: [Object],
+                    request: [ClientRequest],
+                    data: [Object],
+                  },
+                  {
+                    status: 200,
+                    statusText: 'OK',
+                    headers: [Object],
+                    config: [Object],
+                    request: [ClientRequest],
+                    data: [Object],
+                  },
+                ],
+              ]
+            */
 
-        //     // Extracting data and insert to `results`
-        //     allRes.map((item, index) => {
-        //       const detailsResults = item[0].data;
-        //       const videosResults = item[1].data;
-        //       const recommendationsResults = item[2].data;
+            // Extracting data and insert to `combinedMedias`
+            allRes.map((item, index) => {
+              const detailsResults = item[0].data;
+              const videosResults = item[1].data;
+              const recommendationsResults = item[2].data;
 
-        //       // Insert fetched data to `results`
-        //       results[index].media_details = detailsResults;
-        //       results[index].media_videos = videosResults;
-        //       results[index].media_recommendations =
-        //         recommendationsResults.results;
-        //     });
+              // Insert fetched data to `results`
+              combinedMedias[index].media_details = detailsResults;
+              combinedMedias[index].media_videos = videosResults;
+              combinedMedias[index].media_recommendations =
+                recommendationsResults.results;
+            });
 
-        //     res.send({ ...data, results });
-        //   })
-        // );
+            res.send({ results: combinedMedias });
+          })
+        );
       })
     )
     .catch((errors) => {
-      const { data } = errors.response;
-      res.send({ errors: { ...data, message: 'Issues Fetching results' } });
+      console.log(errors, '-=-=-=-=-=-');
+      // const { data } = errors.response;
+      res.send({ errors: { message: 'Issues Fetching results' } });
     });
 });
 
