@@ -1,6 +1,6 @@
 const isEmpty = require('../../utils/isEmpty');
 
-const validatePopularStreaming = (data) => {
+const validatePopularStreams = (data) => {
   const errors = {};
 
   // Check if expected params has been passed in
@@ -23,4 +23,4 @@ const validatePopularStreaming = (data) => {
   };
 };
 
-module.exports = validatePopularStreaming;
+module.exports = validatePopularStreams;

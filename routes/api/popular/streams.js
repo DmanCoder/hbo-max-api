@@ -14,7 +14,7 @@ const shuffle = require('../../../utils/shuffle');
 const router = express.Router();
 
 // Validators
-const validatePopularStreaming = require('../../../validations/popular/streaming');
+const validatePopularStreams = require('../../../validations/popular/streams');
 
 /**
  * @dec       This API makes a request to TMDb API and returns the request
@@ -36,7 +36,7 @@ router.get('/', (req, res) => {
   const { TMDb_API } = process.env;
 
   // Reject if expected params are not present
-  const { errors, isValid } = validatePopularStreaming(queryObject);
+  const { errors, isValid } = validatePopularStreams(queryObject);
   if (!isValid) {
     res.status(400);
     return res.send({ errors });
