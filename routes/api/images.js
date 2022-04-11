@@ -4,8 +4,7 @@ const url = require('url');
 
 const router = express.Router();
 
-const validateImagesMovie = require('../../validations/validateImagesMovie');
-const validateImagesTv = require('../../validations/validateImagesTv');
+const validateEpisodeTvImages = require('../../validations/validateEpisodeTvImages');
 
 /**
  * @dec       This API makes a request to TMDb API and returns the request
@@ -16,19 +15,13 @@ const validateImagesTv = require('../../validations/validateImagesTv');
  * @access    Public
  */
 router.get('/tv/seasons/episode_images', (req, res) => {
-  // Expected params
   const queryObject = url.parse(req.url, true).query;
+
   const { tv_id, latest_season_number, number_of_episodes } = queryObject;
-  console.log(
-    tv_id,
-    latest_season_number,
-    number_of_episodes,
-    'tv_id, latest_season_number, number_of_episodestv_id, latest_season_number, number_of_episodestv_id, latest_season_number, number_of_episodes'
-  );
 
   const { TMDb_API } = process.env;
 
-  const { errors, isValid } = validateImagesTv(queryObject);
+  const { errors, isValid } = validateEpisodeTvImages(queryObject);
   if (!isValid) {
     res.status(400);
     return res.send({ errors });
@@ -44,7 +37,7 @@ router.get('/tv/seasons/episode_images', (req, res) => {
   axios.all(multiReq).then(
     axios.spread((...tvRes) => {
       const tvSeasonEpisodeImages = []
-      
+
       tvRes.forEach((tvEpImg) => {
         tvSeasonEpisodeImages.push(tvEpImg.data)
       })
