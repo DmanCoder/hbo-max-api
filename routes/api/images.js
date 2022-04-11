@@ -5,6 +5,7 @@ const url = require('url');
 const router = express.Router();
 
 const validateEpisodeTvImages = require('../../validations/validateEpisodeTvImages');
+const isEmpty = require('../../utils/isEmpty');
 
 /**
  * @dec       This API makes a request to TMDb API and returns the request
@@ -36,11 +37,17 @@ router.get('/tv/seasons/episode_images', (req, res) => {
 
   axios.all(multiReq).then(
     axios.spread((...tvRes) => {
-      const tvSeasonEpisodeImages = []
+      const tvSeasonEpisodeImages = [];
 
       tvRes.forEach((tvEpImg) => {
-        tvSeasonEpisodeImages.push(tvEpImg.data)
-      })
+        if (!isEmpty(tvEpImg?.data?.stills)) {
+          const lengthOfAvailableImagesForCurrentEpisode = tvEpImg?.data?.stills?.length;
+          const randomeNumber = Math.floor(Math.random() * lengthOfAvailableImagesForCurrentEpisode);
+          const selectedShuffle = tvEpImg.data.stills[randomeNumber];
+          tvSeasonEpisodeImages.push(selectedShuffle);
+        }
+      });
+
 
       res.send({ results: tvSeasonEpisodeImages });
     })

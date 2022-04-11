@@ -12,16 +12,13 @@ const validateEpisodeTvImages = (data) => {
 
   // Feedback accumulator
   if (isEmpty(data.tv_id)) {
-    errors.tv_id =
-      '`tv_id` is empty or has not been passed in as a query param';
+    errors.tv_id = '`tv_id` is empty or has not been passed in as a query param';
   }
   if (isEmpty(data.latest_season_number)) {
-    errors.latest_season_number =
-      '`tv_id` is empty or has not been passed in as a query param';
+    errors.latest_season_number = '`tv_id` is empty or has not been passed in as a query param';
   }
   if (isEmpty(data.number_of_episodes)) {
-    errors.number_of_episodes =
-      '`tv_id` is empty or has not been passed in as a query param';
+    errors.number_of_episodes = '`tv_id` is empty or has not been passed in as a query param';
   }
   // if (isEmpty(data.language)) {
   //   errors.language =
@@ -38,4 +35,4 @@ const validateEpisodeTvImages = (data) => {
   };
 };
 
-module.exports = validateImagesTv;
+module.exports = validateEpisodeTvImages;
