@@ -7,8 +7,9 @@ require('dotenv').config();
 
 // Define routes
 app.use(cors());
-app.use('/api/popular/tv', require('./routes/api/popular/tv'));
-app.use('/api/popular/streams', require('./routes/api/popular/streams'));
+app.use('/api/popular/tv', require('./routes/api/tv'));
+app.use('/api/popular/streams', require('./routes/api/streams'));
+app.use('/api/images', require('./routes/api/images'));
 
 const PORT = process.env.PORT || 5000;
 

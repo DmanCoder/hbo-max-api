@@ -1,8 +1,8 @@
-const { dbAPI, axios } = require('../../../api/init');
+const { dbAPI, axios } = require('../../api/init');
 const express = require('express');
 const url = require('url');
 
-const shuffle = require('../../../utils/shuffle');
+const shuffle = require('../../utils/shuffle');
 
 // TODO: https://www.themoviedb.org/talk/6002a239223e20003fb6e10b
 /*
@@ -14,7 +14,7 @@ const shuffle = require('../../../utils/shuffle');
 const router = express.Router();
 
 // Validators
-const validatePopularStreams = require('../../../validations/popular/streams');
+const validatePopularStreams = require('../../validations/popular/streams');
 
 /**
  * @dec       This API makes a request to TMDb API and returns the request
@@ -56,20 +56,21 @@ router.get('/', (req, res) => {
         const [movies, tvShows] = responses; // Success responses (Movies & Tv Shows)
 
         // Pull out results
-        const { page: moviesPageNumber, results: moviesResults } = movies.data;
+        // const { page: moviesPageNumber, results: moviesResults } = movies.data;
         const { page: tvShowPageNumber, results: tvShowResults } = tvShows.data;
 
         // Append media type
-        const newMoviesResults = moviesResults.map((movie) => {
-          return { ...movie, appendedMediaType: 'movie' };
-        });
+        // const newMoviesResults = moviesResults.map((movie) => {
+        //   return { ...movie, appendedMediaType: 'movie' };
+        // });
 
         const newTvShowsResults = tvShowResults.map((tvShow) => {
           return { ...tvShow, appendedMediaType: 'tv' };
         });
 
-        let combinedMedias = [...newMoviesResults, ...newTvShowsResults];
-        combinedMedias = shuffle({ array: combinedMedias }); // Shuffle to random positionings
+        // let combinedMedias = [...newMoviesResults, ...newTvShowsResults];
+        const combinedMedias = [...newTvShowsResults];
+        // combinedMedias = shuffle({ array: combinedMedias }); // Shuffle to random positionings
 
         const multiReq = []; // [[request], [request], [request]] Store array of axios instances
         /*

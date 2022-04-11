@@ -1,4 +1,4 @@
-const { dbAPI, axios } = require('../../../api/init');
+const { dbAPI, axios } = require('../../api/init');
 const express = require('express');
 const url = require('url');
 // TODO: https://www.themoviedb.org/talk/6002a239223e20003fb6e10b
@@ -11,7 +11,7 @@ const url = require('url');
 const router = express.Router();
 
 // Validators
-const validatePopularTv = require('../../../validations/popular/tv');
+const validatePopularTv = require('../../validations/popular/tv');
 
 /**
  * @dec       This API makes a request to TMDb API and returns the request
