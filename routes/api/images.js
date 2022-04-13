@@ -35,23 +35,27 @@ router.get('/tv/seasons/episode_images', (req, res) => {
     multiReq.push(dbAPI.get(epTv));
   }
 
-  axios.all(multiReq).then(
-    axios.spread((...tvRes) => {
-      const tvSeasonEpisodeImages = [];
+  axios
+    .all(multiReq)
+    .then(
+      axios.spread((...tvRes) => {
+        const tvSeasonEpisodeImages = [];
 
-      tvRes.forEach((tvEpImg) => {
-        if (!isEmpty(tvEpImg?.data?.stills)) {
-          const lengthOfAvailableImagesForCurrentEpisode = tvEpImg?.data?.stills?.length;
-          const randomeNumber = Math.floor(Math.random() * lengthOfAvailableImagesForCurrentEpisode);
-          const selectedShuffle = tvEpImg.data.stills[randomeNumber];
-          tvSeasonEpisodeImages.push(selectedShuffle);
-        }
-      });
+        tvRes.forEach((tvEpImg) => {
+          if (!isEmpty(tvEpImg?.data?.stills)) {
+            const lengthOfAvailableImagesForCurrentEpisode = tvEpImg?.data?.stills?.length;
+            const randomeNumber = Math.floor(Math.random() * lengthOfAvailableImagesForCurrentEpisode);
+            const selectedShuffle = tvEpImg.data.stills[randomeNumber];
+            tvSeasonEpisodeImages.push(selectedShuffle);
+          }
+        });
 
-
-      res.send({ results: tvSeasonEpisodeImages });
-    })
-  );
+        res.send({ results: tvSeasonEpisodeImages });
+      })
+    )
+    .catch((err) => {
+      res.send({ results: err });
+    });
 });
 
 module.exports = router;
