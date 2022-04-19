@@ -14,11 +14,11 @@ const validateEpisodeTvImages = (data) => {
   if (isEmpty(data.tv_id)) {
     errors.tv_id = '`tv_id` is empty or has not been passed in as a query param';
   }
-  if (isEmpty(data.latest_season_number)) {
-    errors.latest_season_number = '`tv_id` is empty or has not been passed in as a query param';
+  if (isEmpty(data.season_number)) {
+    errors.season_number = '`season_number` is empty or has not been passed in as a query param';
   }
   if (isEmpty(data.number_of_episodes)) {
-    errors.number_of_episodes = '`tv_id` is empty or has not been passed in as a query param';
+    errors.number_of_episodes = '`number_of_episodes` is empty or has not been passed in as a query param';
   }
   // if (isEmpty(data.language)) {
   //   errors.language =
