@@ -77,12 +77,12 @@ router.get('/tv/seasons/episode_images', (req, res) => {
             });
           })
           .catch((error) => {
-            res.send({ errors: { message: 'Issues Fetching results TEST', error } });
+            res.send({ errors: { message: 'Issues Fetching results', error } });
           });
       })
     )
     .catch((error) => {
-      res.send({ errors: { message: 'Issues Fetching results TEST', error } });
+      res.send({ errors: { message: 'Issues Fetching results', error } });
     });
 });
 
