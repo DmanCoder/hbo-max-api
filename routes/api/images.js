@@ -28,62 +28,134 @@ router.get('/tv/seasons/episode_images', (req, res) => {
     return res.send({ errors });
   }
 
-  const multiReq = [];
+  const epTv = `/tv/${tv_id}/season/${season_number}?api_key=${TMDb_API}&watch_region=US`;
+  const seasonRating = [];
 
-  for (let index = 1; index <= number_of_episodes; index++) {
-    const epTv = `/tv/${tv_id}/season/${season_number}/episode/${index}/images?api_key=${TMDb_API}`;
-    multiReq.push(dbAPI.get(epTv));
-  }
+  dbAPI
+    .get(epTv)
+    .then((response) => {
+      const { data } = response;
+      // data.episodes.forEach((episode, index) => {
+      //   tvSeasonEpisodeImages[index].appended_episode_name = episode.name;
+      //   tvSeasonEpisodeImages[index].appended_vote_average = episode.vote_average;
 
-  axios
-    .all(multiReq)
-    .then(
-      axios.spread((...tvRes) => {
-        const tvSeasonEpisodeImages = [];
+      //   if (!isEmpty(tvSeasonEpisodeImages[index])) seasonRating.push(episode.vote_average);
+      // });
 
-        tvRes.forEach((tvEpImg) => {
-          if (!isEmpty(tvEpImg?.data?.stills)) {
-            const lengthOfAvailableImagesForCurrentEpisode = tvEpImg?.data?.stills?.length;
-            const randomeNumber = Math.floor(Math.random() * lengthOfAvailableImagesForCurrentEpisode);
-            const selectedShuffle = tvEpImg.data.stills[randomeNumber];
-            tvSeasonEpisodeImages.push(selectedShuffle);
-          } else {
-            tvSeasonEpisodeImages.push({});
-          }
-        });
+      const sum = seasonRating.reduce((a, b) => a + b, 0);
+      const voteAverage = sum / seasonRating.length || 0;
+      const currentSeasonNumberOfEpisodes = data.episodes.length - 1;
 
-        const epTv = `/tv/${tv_id}/season/${season_number}?api_key=${TMDb_API}&watch_region=US`;
-        const seasonRating = []
+      // res.send({
+      //   appended_vote_average: voteAverage?.toFixed(2),
+      //   appended_overview: data.overview,
+      //   appended_name: data.name,
+      //   results: data,
+      // });
 
-        dbAPI
-          .get(epTv)
-          .then((response) => {
-            const { data } = response;
-            data.episodes.forEach((episode, index) => {
-              tvSeasonEpisodeImages[index].appended_episode_name = episode.name;
-              tvSeasonEpisodeImages[index].appended_vote_average = episode.vote_average;
+      const multiReq = [];
 
-              if (!isEmpty(tvSeasonEpisodeImages[index])) seasonRating.push(episode.vote_average)
+      for (let index = 1; index <= number_of_episodes; index++) {
+        const epTv = `/tv/${tv_id}/season/${season_number}/episode/${index}/images?api_key=${TMDb_API}`;
+        multiReq.push(dbAPI.get(epTv));
+      }
+
+      axios
+        .all(multiReq)
+        .then(
+          axios.spread((...tvRes) => {
+            console.log(tvRes, 'tvRestvRestvRes');
+            const tvSeasonEpisodeImages = [];
+
+            tvRes.forEach((tvEpImg) => {
+              if (!isEmpty(tvEpImg?.data?.stills)) {
+                const lengthOfAvailableImagesForCurrentEpisode = tvEpImg?.data?.stills?.length;
+                const randomeNumber = Math.floor(Math.random() * lengthOfAvailableImagesForCurrentEpisode);
+                const selectedShuffle = tvEpImg.data.stills[randomeNumber];
+                // TODO: HERER
+                // selectedShuffle.appended_episode_name = episode.name;
+                // selectedShuffle.appended_vote_average = episode.vote_average;
+                // if (!isEmpty(selectedShuffle)) seasonRating.push(episode.vote_average);
+                tvSeasonEpisodeImages.push(selectedShuffle);
+              } else {
+                tvSeasonEpisodeImages.push({});
+              }
             });
 
-            const sum = seasonRating.reduce((a, b) => a + b, 0);
-            const vote_average = (sum / seasonRating.length) || 0;
-
             res.send({
-              appended_vote_average: vote_average?.toFixed(2),
+              appended_vote_average: voteAverage?.toFixed(2),
               appended_overview: data.overview,
               appended_name: data.name,
               results: tvSeasonEpisodeImages,
             });
           })
-          .catch((error) => {
-            res.send({ errors: { message: 'Issues Fetching results', error } });
-          });
-      })
-    )
+        )
+        .catch((error) => {
+          res.send({ errors: { message: 'Issues Fetching results', error } });
+        });
+    })
     .catch((error) => {
       res.send({ errors: { message: 'Issues Fetching results', error } });
     });
+
+  // ---------
+
+  // const multiReq = [];
+
+  // for (let index = 1; index <= number_of_episodes; index++) {
+  //   const epTv = `/tv/${tv_id}/season/${season_number}/episode/${index}/images?api_key=${TMDb_API}`;
+  //   multiReq.push(dbAPI.get(epTv));
+  // }
+
+  // axios
+  //   .all(multiReq)
+  //   .then(
+  //     axios.spread((...tvRes) => {
+  // const tvSeasonEpisodeImages = [];
+
+  // tvRes.forEach((tvEpImg) => {
+  //   if (!isEmpty(tvEpImg?.data?.stills)) {
+  //     const lengthOfAvailableImagesForCurrentEpisode = tvEpImg?.data?.stills?.length;
+  //     const randomeNumber = Math.floor(Math.random() * lengthOfAvailableImagesForCurrentEpisode);
+  //     const selectedShuffle = tvEpImg.data.stills[randomeNumber];
+  //     tvSeasonEpisodeImages.push(selectedShuffle);
+  //   } else {
+  //     tvSeasonEpisodeImages.push({});
+  //   }
+  // });
+
+  //       const epTv = `/tv/${tv_id}/season/${season_number}?api_key=${TMDb_API}&watch_region=US`;
+  //       const seasonRating = [];
+
+  //       dbAPI
+  //         .get(epTv)
+  //         .then((response) => {
+  //           const { data } = response;
+  //           data.episodes.forEach((episode, index) => {
+  //             tvSeasonEpisodeImages[index].appended_episode_name = episode.name;
+  //             tvSeasonEpisodeImages[index].appended_vote_average = episode.vote_average;
+
+  //             if (!isEmpty(tvSeasonEpisodeImages[index])) seasonRating.push(episode.vote_average);
+  //           });
+
+  //           const sum = seasonRating.reduce((a, b) => a + b, 0);
+  //           const vote_average = sum / seasonRating.length || 0;
+
+  //           res.send({
+  //             appended_vote_average: vote_average?.toFixed(2),
+  //             appended_overview: data.overview,
+  //             appended_name: data.name,
+  //             results: tvSeasonEpisodeImages,
+  //           });
+  //         })
+  //         .catch((error) => {
+  //           res.send({ errors: { message: 'Issues Fetching results', error } });
+  //         });
+  //     })
+  //   )
+  //   .catch((error) => {
+  //     res.send({ errors: { message: 'Issues Fetching results', error } });
+  //   });
 });
 
 module.exports = router;
