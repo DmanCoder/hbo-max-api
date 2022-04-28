@@ -18,7 +18,7 @@ const isEmpty = require('../../utils/isEmpty');
 router.get('/tv/seasons/episode_images', (req, res) => {
   const queryObject = url.parse(req.url, true).query;
 
-  const { tv_id, season_number, number_of_episodes, language, page } = queryObject;
+  const { tv_id, season_number, language, page } = queryObject;
 
   const { TMDb_API } = process.env;
 
@@ -35,27 +35,14 @@ router.get('/tv/seasons/episode_images', (req, res) => {
     .get(epTv)
     .then((response) => {
       const { data } = response;
-      // data.episodes.forEach((episode, index) => {
-      //   tvSeasonEpisodeImages[index].appended_episode_name = episode.name;
-      //   tvSeasonEpisodeImages[index].appended_vote_average = episode.vote_average;
-
-      //   if (!isEmpty(tvSeasonEpisodeImages[index])) seasonRating.push(episode.vote_average);
-      // });
 
       const sum = seasonRating.reduce((a, b) => a + b, 0);
       const voteAverage = sum / seasonRating.length || 0;
-      const currentSeasonNumberOfEpisodes = data.episodes.length - 1;
-
-      // res.send({
-      //   appended_vote_average: voteAverage?.toFixed(2),
-      //   appended_overview: data.overview,
-      //   appended_name: data.name,
-      //   results: data,
-      // });
+      const currentSeasonNumberOfEpisodes = data.episodes.length;
 
       const multiReq = [];
 
-      for (let index = 1; index <= number_of_episodes; index++) {
+      for (let index = 1; index <= currentSeasonNumberOfEpisodes; index++) {
         const epTv = `/tv/${tv_id}/season/${season_number}/episode/${index}/images?api_key=${TMDb_API}`;
         multiReq.push(dbAPI.get(epTv));
       }
@@ -64,21 +51,26 @@ router.get('/tv/seasons/episode_images', (req, res) => {
         .all(multiReq)
         .then(
           axios.spread((...tvRes) => {
-            console.log(tvRes, 'tvRestvRestvRes');
             const tvSeasonEpisodeImages = [];
+            // console.log(tvRes, 'tvRestvRestvRes');
 
-            tvRes.forEach((tvEpImg) => {
+            tvRes?.forEach((tvEpImg, index) => {
+              // console.log(tvEpImg, 'tvEpImgtvEpImgtvEpImgtvEpImg');
               if (!isEmpty(tvEpImg?.data?.stills)) {
                 const lengthOfAvailableImagesForCurrentEpisode = tvEpImg?.data?.stills?.length;
                 const randomeNumber = Math.floor(Math.random() * lengthOfAvailableImagesForCurrentEpisode);
                 const selectedShuffle = tvEpImg.data.stills[randomeNumber];
-                // TODO: HERER
-                // selectedShuffle.appended_episode_name = episode.name;
-                // selectedShuffle.appended_vote_average = episode.vote_average;
-                // if (!isEmpty(selectedShuffle)) seasonRating.push(episode.vote_average);
+
+                selectedShuffle.appended_episode_name = data.episodes[index]?.name;
+                selectedShuffle.appended_vote_average = data.episodes[index]?.vote_average;
+                if (!isEmpty(selectedShuffle)) seasonRating.push(data.episodes[index]?.vote_average);
+
                 tvSeasonEpisodeImages.push(selectedShuffle);
               } else {
-                tvSeasonEpisodeImages.push({});
+                const noImagesFoundForCurrentEpisode = {};
+                noImagesFoundForCurrentEpisode.appended_episode_name = data.episodes[index]?.name;
+                noImagesFoundForCurrentEpisode.appended_vote_average = data.episodes[index]?.vote_average;
+                tvSeasonEpisodeImages.push(noImagesFoundForCurrentEpisode);
               }
             });
 
