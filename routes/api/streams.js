@@ -27,10 +27,12 @@ const validatePopularStreams = require('../../validations/popular/streams');
  * @returns   {boolean}
  * @access    Public
  */
+
+// TODO: ADD LANGUGE / REGION CHANGE
 router.get('/', (req, res) => {
   // Expected params
   const queryObject = url.parse(req.url, true).query;
-  const { language, page } = queryObject;
+  const { network_id, language, page } = queryObject;
 
   // API access key
   const { TMDb_API } = process.env;
@@ -42,11 +44,14 @@ router.get('/', (req, res) => {
     return res.send({ errors });
   }
 
+
   // Get popular movies/tv shows that are streaming on streaming servicers
-  const epStreamingMovies = `/discover/movie?api_key=${TMDb_API}&watch_region=US&with_watch_monetization_types=flatrate&language=${language}&page=${page}`;
+  const epStreamingMovies = `/discover/movie?api_key=${TMDb_API}&watch_region=US&with_watch_monetization_types=flatrate&with_origin_country=US&& with_networks=&language=${language}&page=${page}`;
   const requestStreamingMovies = dbAPI.get(epStreamingMovies);
 
-  const epStreamingTvShows = `/discover/tv?api_key=${TMDb_API}&watch_region=US&with_watch_monetization_types=flatrate&language=${language}&page=${page}`;
+  // const epStreamingTvShows = `/discover/tv?api_key=${TMDb_API}&watch_region=US&with_watch_monetization_types=flatrate&with_origin_country=US&with_networks=${combinedNetworkds.join(', ')}&language=${language}&page=${page}`;
+  // const epStreamingTvShows = `/discover/tv?api_key=${TMDb_API}&watch_region=US&with_watch_monetization_types=flatrate&with_origin_country=US&with_networks=${disneyId}&language=${language}&page=${page}`;
+  const epStreamingTvShows = `/discover/tv?api_key=${TMDb_API}&watch_region=US&with_origin_country=US&with_networks=${network_id}&language=${language}&page=${page}`;
   const requestStreamingTvShows = dbAPI.get(epStreamingTvShows);
 
   axios
@@ -69,7 +74,9 @@ router.get('/', (req, res) => {
         });
 
         // let combinedMedias = [...newMoviesResults, ...newTvShowsResults];
-        const combinedMedias = [...newTvShowsResults];
+        const blacklisted = [194922, 6455, 2778];
+        const filtered = [...newTvShowsResults].filter((item) => !blacklisted.includes(item.id));
+        const combinedMedias = shuffle({ array: filtered });
         // combinedMedias = shuffle({ array: combinedMedias }); // Shuffle to random positionings
 
         const multiReq = []; // [[request], [request], [request]] Store array of axios instances
@@ -83,13 +90,7 @@ router.get('/', (req, res) => {
           const epVideos = `/${item.appendedMediaType}/${item.id}/videos?api_key=${TMDb_API}&languages=${language}&pages=${page}`;
           const epRecommendations = `/${item.appendedMediaType}/${item.id}/recommendations?api_key=${TMDb_API}&languages=${language}&pages=${page}`;
 
-          multiReq.push(
-            axios.all([
-              dbAPI.get(epDetails),
-              dbAPI.get(epVideos),
-              dbAPI.get(epRecommendations),
-            ])
-          );
+          multiReq.push(axios.all([dbAPI.get(epDetails), dbAPI.get(epVideos), dbAPI.get(epRecommendations)]));
         });
 
         axios.all(multiReq).then(
@@ -124,11 +125,14 @@ router.get('/', (req, res) => {
               const videosResults = item[1].data;
               const recommendationsResults = item[2].data;
 
+              if (detailsResults.networks[0]?.name.includes('HBO')) {
+                console.log(detailsResults.networks[0].id, '-=-=-=-=-=-=-=-=-=-=-', detailsResults)
+              }
+
               // Insert fetched data to `results`
               combinedMedias[index].media_details = detailsResults;
               combinedMedias[index].media_videos = videosResults;
-              combinedMedias[index].media_recommendations =
-                recommendationsResults.results;
+              combinedMedias[index].media_recommendations = recommendationsResults.results;
             });
 
             res.send({ results: combinedMedias });
