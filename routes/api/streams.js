@@ -124,11 +124,7 @@ router.get('/', (req, res) => {
               const detailsResults = item[0].data;
               const videosResults = item[1].data;
               const recommendationsResults = item[2].data;
-
-              if (detailsResults.networks[0]?.name.includes('HBO')) {
-                console.log(detailsResults.networks[0].id, '-=-=-=-=-=-=-=-=-=-=-', detailsResults)
-              }
-
+              
               // Insert fetched data to `results`
               combinedMedias[index].media_details = detailsResults;
               combinedMedias[index].media_videos = videosResults;
