@@ -4,7 +4,7 @@ const url = require('url');
 const router = express.Router();
 
 const { dbAPI, axios } = require('../../api/init');
-// const shuffle = require('../../utils/shuffle');
+const shuffle = require('../../utils/shuffle');
 const validatePopularStreams = require('../../validations/popular/streams');
 
 router.get('/', (req, res) => {
@@ -41,7 +41,10 @@ router.get('/', (req, res) => {
           appended_media_type: 'tv',
         }));
 
-        return res.send({ test: 'TEST' });
+        const combinedMedias = [...tvShowsWithAddedMediaType, ...moviesWithAddedMediaType]
+        const combinedMediasShufled = shuffle({ array: combinedMedias });
+
+        return res.send({ results: combinedMediasShufled });
       })
     )
     .catch((errors) => {
