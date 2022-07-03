@@ -41,15 +41,14 @@ router.get('/', (req, res) => {
           appended_media_type: 'tv',
         }));
 
-        const combinedMedias = [...tvShowsWithAddedMediaType, ...moviesWithAddedMediaType]
-        const combinedMediasShufled = shuffle({ array: combinedMedias });
+        const combinedMedias = [...tvShowsWithAddedMediaType, ...moviesWithAddedMediaType];
+        const combinedMediasShuffled = shuffle({ array: combinedMedias });
 
-        return res.send({ results: combinedMediasShufled });
+        return res.send({ results: combinedMediasShuffled });
       })
     )
     .catch((errors) => {
-      console.log(errors, 'errorserrorserrors');
-      res.send({ errors: { message: 'Issues Fetching results' } });
+      res.send({ errors: { message: 'Issues Fetching results', errors } });
     });
 });
 
