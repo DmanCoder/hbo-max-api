@@ -7,6 +7,11 @@ require('dotenv').config();
 
 // Define routes
 app.use(cors());
+app.get('/', (req, res) => {
+  res.send({
+    message: 'hello world this is me life should be fun for everyone (The Saddle Club)',
+  });
+});
 app.use('/api/popular/tv', require('./routes/api/tv'));
 app.use('/api/popular/streams', require('./routes/api/streams'));
 app.use('/api/images', require('./routes/api/images'));
