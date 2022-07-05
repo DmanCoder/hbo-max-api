@@ -12,15 +12,13 @@ router.get('/tv/seasons/episode_images', (req, res) => {
 
   const { tv_id, season_number, language, page } = queryObject;
 
-  const { TMDb_API } = process.env;
-
   const { errors, isValid } = validateEpisodeTvImages(queryObject);
   if (!isValid) {
     res.status(400);
     return res.send({ errors });
   }
 
-  const epTv = `/tv/${tv_id}/season/${season_number}?api_key=${TMDb_API}&watch_region=US`;
+  const epTv = `/tv/${tv_id}/season/${season_number}?api_key=${process.env.TMDb_API}&watch_region=US`;
   const seasonRating = [];
 
   dbAPI
@@ -35,7 +33,7 @@ router.get('/tv/seasons/episode_images', (req, res) => {
       const multiReq = [];
 
       for (let index = 1; index <= currentSeasonNumberOfEpisodes; index++) {
-        const epTv = `/tv/${tv_id}/season/${season_number}/episode/${index}/images?api_key=${TMDb_API}`;
+        const epTv = `/tv/${tv_id}/season/${season_number}/episode/${index}/images?api_key=${process.env.TMDb_API}`;
         multiReq.push(dbAPI.get(epTv));
       }
 

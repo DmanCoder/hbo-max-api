@@ -11,16 +11,14 @@ router.get('/', (req, res) => {
   const queryObject = url.parse(req.url, true).query;
   const { network_id, language, page } = queryObject;
 
-  const { TMDb_API } = process.env;
-
   const { errors, isValid } = validatePopularStreams(queryObject);
   if (!isValid) {
     res.status(400);
     return res.send({ errors });
   }
 
-  const moviesEndpoint = `/discover/movie?api_key=${TMDb_API}&watch_region=US&with_watch_monetization_types=flatrate&with_origin_country=US&& with_networks=&language=${language}&page=${page}`;
-  const tvShowsEndpoint = `/discover/tv?api_key=${TMDb_API}&watch_region=US&with_origin_country=US&with_watch_monetization_types=flatrate&with_networks=${network_id}&language=${language}&page=${page}`;
+  const moviesEndpoint = `/discover/movie?api_key=${process.env.TMDb_API}&watch_region=US&with_watch_monetization_types=flatrate&with_origin_country=US&& with_networks=&language=${language}&page=${page}`;
+  const tvShowsEndpoint = `/discover/tv?api_key=${process.env.TMDb_API}&watch_region=US&with_origin_country=US&with_watch_monetization_types=flatrate&with_networks=${network_id}&language=${language}&page=${page}`;
 
   const moviesApiRequest = dbAPI.get(moviesEndpoint);
   const tvShowsRequest = dbAPI.get(tvShowsEndpoint);
