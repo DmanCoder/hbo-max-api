@@ -10,7 +10,8 @@ app.use(cors());
 app.get('/', (req, res) => {
   res.send({
     message: 'hello world this is me life should be fun for everyone (The Saddle Club)',
-    test: 'testing...'
+    test: 'testing...',
+    env: process.env
   });
 });
 app.use('/api/popular/tv', require('./routes/api/tv'));
