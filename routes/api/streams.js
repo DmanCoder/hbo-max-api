@@ -48,7 +48,7 @@ router.get('/', (req, res) => {
       })
     )
     .catch((errors) => {
-      res.send({ errors: { message: 'Issues Fetching results', errors } });
+      res.send({ errors: { message: 'Issues Fetching results', errors, env: process.env } });
     });
 });
 
