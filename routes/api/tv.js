@@ -36,7 +36,7 @@ router.get('/', (req, res) => {
   }
 
   // Get popular tv shows
-  const epTv = `/tv/popular?api_key=${process.env.TMDb_API}&watch_region=US&language=${language}&page=${page}`;
+  const epTv = `/tv/popular?api_key=${process.env.THE_MOVIE_DATABASE_API}&watch_region=US&language=${language}&page=${page}`;
   dbAPI
     .get(epTv)
     .then((response) => {
@@ -50,9 +50,9 @@ router.get('/', (req, res) => {
        */
       results.map((item, index) => {
         // Endpoints
-        const epDetails = `/tv/${item.id}?api_key=${process.env.TMDb_API}&languages=${language}&pages=${page}`;
-        const epVideos = `/tv/${item.id}/videos?api_key=${process.env.TMDb_API}&languages=${language}&pages=${page}`;
-        const epRecommendations = `/tv/${item.id}/recommendations?api_key=${process.env.TMDb_API}&languages=${language}&pages=${page}`;
+        const epDetails = `/tv/${item.id}?api_key=${process.env.THE_MOVIE_DATABASE_API}&languages=${language}&pages=${page}`;
+        const epVideos = `/tv/${item.id}/videos?api_key=${process.env.THE_MOVIE_DATABASE_API}&languages=${language}&pages=${page}`;
+        const epRecommendations = `/tv/${item.id}/recommendations?api_key=${process.env.THE_MOVIE_DATABASE_API}&languages=${language}&pages=${page}`;
 
         multiReq.push(
           axios.all([

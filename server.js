@@ -11,7 +11,7 @@ app.get('/', (req, res) => {
   res.send({
     message: 'hello world this is me life should be fun for everyone (The Saddle Club)',
     test: 'testing...',
-    env: process.env.TMDb_API
+    env: process.env.THE_MOVIE_DATABASE_API,
   });
 });
 app.use('/api/popular/tv', require('./routes/api/tv'));

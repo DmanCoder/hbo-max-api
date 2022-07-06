@@ -8,19 +8,20 @@
     "start": "node server",
     "server": "nodemon server",
     "client": "npm start --prefix client",
-    "dev": "concurrently \"npm run server\" \"npm run client\""
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "reinstall": "rm -rf node_modules && npm i"
   },
   "author": "DmanCoder",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.21.1",
-    "config": "^3.3.6",
+    "axios": "^0.27.2",
+    "config": "^3.3.7",
     "cors": "^2.8.5",
-    "dotenv": "^9.0.2",
-    "express": "^4.17.1",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
     "url": "^0.11.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.7"
+    "nodemon": "^2.0.19"
   }
 }
