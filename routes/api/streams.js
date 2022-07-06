@@ -46,7 +46,8 @@ router.get('/', (req, res) => {
       })
     )
     .catch((errors) => {
-      res.send({ errors: { message: 'Issues Fetching results', errors, env: process.env } });
+      res.status(500);
+      res.send({ errors: { message: 'Issues Fetching results' } });
     });
 });
 
