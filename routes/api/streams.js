@@ -62,15 +62,15 @@ router.get('/', (req, res) => {
               res.send({ results: combinedMediasShuffled });
             })
           )
-          .catch((errors) => {
+          .catch((err) => {
             res.status(500);
-            res.send({ errors: { message: 'Issues Fetching results' } });
+            res.send({ errors: { message: 'Issues Fetching results 2' }, err });
           });
       })
     )
-    .catch((errors) => {
+    .catch((err) => {
       res.status(500);
-      res.send({ errors: { message: 'Issues Fetching results' } });
+      res.send({ errors: { message: 'Issues Fetching results 4' }, err });
     });
 });
 
