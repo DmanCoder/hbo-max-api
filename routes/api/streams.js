@@ -56,6 +56,7 @@ router.get('/', (req, res) => {
               allRes.map((item, index) => {
                 const detailsResults = item[0].data;
 
+                // TODO: THERE ARE TOO MANY REQUESTS REMOVE THIS...
                 combinedMediasShuffled[index].media_details = detailsResults;
               });
 
@@ -64,12 +65,14 @@ router.get('/', (req, res) => {
           )
           .catch((err) => {
             res.status(500);
+            console.log(err, '2');
             res.send({ errors: { message: 'Issues Fetching results 2' }, err });
           });
       })
     )
     .catch((err) => {
       res.status(500);
+      console.log(err, '4');
       res.send({ errors: { message: 'Issues Fetching results 4' }, err });
     });
 });
