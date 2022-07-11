@@ -42,38 +42,12 @@ router.get('/', (req, res) => {
         const combinedMedias = [...tvShowsWithAddedMediaType, ...moviesWithAddedMediaType];
         combinedMediasShuffled = shuffle({ array: combinedMedias });
 
-        const multiReq = [];
-
-        combinedMediasShuffled.map((item) => {
-          const detailsEndPoint = `/${item.appended_media_type}/${item.id}?api_key=${process.env.THE_MOVIE_DATABASE_API}&languages=${language}&pages=${page}`;
-          multiReq.push(axios.all([dbAPI.get(detailsEndPoint)]));
-        });
-
-        axios
-          .all(multiReq)
-          .then(
-            axios.spread((...allRes) => {
-              allRes.map((item, index) => {
-                const detailsResults = item[0].data;
-
-                // TODO: THERE ARE TOO MANY REQUESTS REMOVE THIS...
-                combinedMediasShuffled[index].media_details = detailsResults;
-              });
-
-              res.send({ results: combinedMediasShuffled });
-            })
-          )
-          .catch((err) => {
-            res.status(500);
-            console.log(err, '2');
-            res.send({ errors: { message: 'Issues Fetching results 2' }, err });
-          });
+        return res.send({ results: combinedMediasShuffled });
       })
     )
     .catch((err) => {
       res.status(500);
-      console.log(err, '4');
-      res.send({ errors: { message: 'Issues Fetching results 4' }, err });
+      res.send({ errors: { message: 'Issues Fetching results' } });
     });
 });
 
