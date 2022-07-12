@@ -39,7 +39,7 @@ router.get('/', (req, res) => {
     .get(epTv)
     .then((response) => {
       const { data } = response;
-      res.send({ results: { message: 'THIS IS A TEST' } });
+      res.send({ results: data });
     })
     .catch((errors) => {
       res.send({ errors: { message: 'Issues Fetching results' } });
