@@ -24,7 +24,7 @@ const validateMediaDetails = require('../../validations/validateMediaDetails');
 router.get('/', (req, res) => {
   // Expected params
   const queryObject = url.parse(req.url, true).query;
-  const { language, page, media_id } = queryObject;
+  const { language, page, media_id, appended_media_type } = queryObject;
 
   // Reject if expected params are not present
   const { errors, isValid } = validateMediaDetails(queryObject);
@@ -34,9 +34,9 @@ router.get('/', (req, res) => {
   }
 
   // Get popular tv shows
-  const epTv = `/tv/${media_id}?api_key=${process.env.THE_MOVIE_DATABASE_API}&languages=${language}&pages=${page}`;
+  const mediaDetailsEndpoint = `/${appended_media_type}/${media_id}?api_key=${process.env.THE_MOVIE_DATABASE_API}&languages=${language}&pages=${page}`;
   dbAPI
-    .get(epTv)
+    .get(mediaDetailsEndpoint)
     .then((response) => {
       const { data } = response;
       res.send({ results: data });
