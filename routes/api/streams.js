@@ -17,8 +17,11 @@ router.get('/', (req, res) => {
     return res.send({ errors });
   }
 
-  const moviesEndpoint = `/discover/movie?api_key=${process.env.THE_MOVIE_DATABASE_API}&watch_region=US&with_watch_monetization_types=flatrate&with_origin_country=US&with_networks${network_id}=&language=${language}&page=${page}`;
-  const tvShowsEndpoint = `/discover/tv?api_key=${process.env.THE_MOVIE_DATABASE_API}&watch_region=US&&with_watch_monetization_types=flatrate&with_origin_country=US&with_networks=${network_id}&language=${language}&page=${page}`;
+  let networkIdParam = `&with_networks${network_id}`
+  if (network_id === -1) networkIdParam = ''
+
+  const moviesEndpoint = `/discover/movie?api_key=${process.env.THE_MOVIE_DATABASE_API}&watch_region=US&with_watch_monetization_types=flatrate&with_origin_country=US&${networkIdParam}&language=${language}&page=${page}`;
+  const tvShowsEndpoint = `/discover/tv?api_key=${process.env.THE_MOVIE_DATABASE_API}&watch_region=US&&with_watch_monetization_types=flatrate&with_origin_country=US&${networkIdParam}&language=${language}&page=${page}`;
 
   const moviesApiRequest = dbAPI.get(moviesEndpoint);
   const tvShowsRequest = dbAPI.get(tvShowsEndpoint);
