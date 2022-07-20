@@ -46,4 +46,36 @@ router.get('/', (req, res) => {
     });
 });
 
+/**
+ * @dec       This API makes a request to TMDb API and returns the request
+ *            for the client to consume.
+ * @route     GET /api/media/details/${media_id}
+ * @param     {req, res} - Request & Response
+ * @returns   {boolean}
+ * @access    Public
+ */
+router.get('/media_ratings', (req, res) => {
+  const queryObject = url.parse(req.url, true).query;
+  const { appended_media_type, media_id, language, page } = queryObject;
+
+  // /tv/{tv_id}/content_ratings
+  // Reject if expected params are not present
+  // const { errors, isValid } = validateMediaDetails(queryObject);
+  // if (!isValid) {
+  //   res.status(400);
+  //   return res.send({ errors });
+  // }
+
+  const mediaDetailsEndpoint = `/${appended_media_type}/${media_id}/content_ratings?api_key=${process.env.THE_MOVIE_DATABASE_API}&languages=${language}&pages=${page}`;
+  dbAPI
+    .get(mediaDetailsEndpoint)
+    .then((response) => {
+      const { data } = response;
+      res.send({ results: data });
+    })
+    .catch((errors) => {
+      res.send({ errors: { message: 'Issues Fetching results', errors } });
+    });
+});
+
 module.exports = router;

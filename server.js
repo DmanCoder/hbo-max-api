@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
 app.use('/api/popular/tv', require('./routes/api/tv'));
 app.use('/api/popular/streams', require('./routes/api/streams'));
 app.use('/api/images', require('./routes/api/images'));
-app.use('/api/media/details', require('./routes/api/details'));
+app.use('/api/details', require('./routes/api/details'));
 
 const PORT = process.env.PORT || 5000;
 

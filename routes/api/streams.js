@@ -32,17 +32,17 @@ router.get('/', (req, res) => {
       axios.spread((...responses) => {
         const [movieStreams, tvShowStreams] = responses;
 
-        const moviesWithAddedMediaType = movieStreams.data.results.map((movie) => ({
-          ...movie,
-          appended_media_type: 'movie',
-        }));
+        // const moviesWithAddedMediaType = movieStreams.data.results.map((movie) => ({
+        //   ...movie,
+        //   appended_media_type: 'movie',
+        // }));
 
         const tvShowsWithAddedMediaType = tvShowStreams.data.results.map((tv) => ({
           ...tv,
           appended_media_type: 'tv',
         }));
 
-        const combinedMedias = [...tvShowsWithAddedMediaType, ...moviesWithAddedMediaType];
+        const combinedMedias = [...tvShowsWithAddedMediaType];
         combinedMediasShuffled = shuffle({ array: combinedMedias });
 
         return res.send({ results: combinedMediasShuffled });
