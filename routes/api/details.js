@@ -10,17 +10,8 @@ const url = require('url');
 
 const router = express.Router();
 
-// Validators
 const validateMediaDetails = require('../../validations/validateMediaDetails');
 
-/**
- * @dec       This API makes a request to TMDb API and returns the request
- *            for the client to consume.
- * @route     GET /api/media/details/${media_id}
- * @param     {req, res} - Request & Response
- * @returns   {boolean}
- * @access    Public
- */
 router.get('/', (req, res) => {
   // Expected params
   const queryObject = url.parse(req.url, true).query;
@@ -33,8 +24,15 @@ router.get('/', (req, res) => {
     return res.send({ errors });
   }
 
+  let appendedToResponseParams = '';
+  if (appended_media_type === 'tv') {
+    appendedToResponseParams = '&append_to_response=content_ratings';
+  } else if (appended_media_type === 'movie') {
+    appendedToResponseParams = '&append_to_response=release_dates';
+  }
+
   // Get popular tv shows
-  const mediaDetailsEndpoint = `/${appended_media_type}/${media_id}?api_key=${process.env.THE_MOVIE_DATABASE_API}&languages=${language}&pages=${page}`;
+  const mediaDetailsEndpoint = `/${appended_media_type}/${media_id}?api_key=${process.env.THE_MOVIE_DATABASE_API}${appendedToResponseParams}&languages=${language}&pages=${page}`;
   dbAPI
     .get(mediaDetailsEndpoint)
     .then((response) => {
@@ -46,25 +44,15 @@ router.get('/', (req, res) => {
     });
 });
 
-/**
- * @dec       This API makes a request to TMDb API and returns the request
- *            for the client to consume.
- * @route     GET /api/media/details/${media_id}
- * @param     {req, res} - Request & Response
- * @returns   {boolean}
- * @access    Public
- */
 router.get('/media_ratings', (req, res) => {
   const queryObject = url.parse(req.url, true).query;
   const { appended_media_type, media_id, language, page } = queryObject;
 
-  // /tv/{tv_id}/content_ratings
-  // Reject if expected params are not present
-  // const { errors, isValid } = validateMediaDetails(queryObject);
-  // if (!isValid) {
-  //   res.status(400);
-  //   return res.send({ errors });
-  // }
+  const { errors, isValid } = validateMediaDetails(queryObject);
+  if (!isValid) {
+    res.status(400);
+    return res.send({ errors });
+  }
 
   const mediaDetailsEndpoint = `/${appended_media_type}/${media_id}/content_ratings?api_key=${process.env.THE_MOVIE_DATABASE_API}&languages=${language}&pages=${page}`;
   dbAPI
